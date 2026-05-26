@@ -1,0 +1,24 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node / Next.js
+enersave-web/node_modules/
+enersave-web/.next/
+enersave-web/.data/
+
+# Python
+enersave-ai/.venv/
+enersave-ai/__pycache__/
+enersave-ai/tests/__pycache__/
+*.pyc
+
+# Logs
+*.log
