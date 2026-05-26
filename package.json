@@ -1,0 +1,16 @@
+{
+  "name": "enersave",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix enersave-web",
+    "build": "npm run build --prefix enersave-web && node scripts/sync-next-build.mjs",
+    "start": "npm run start --prefix enersave-web",
+    "lint": "npm run lint --prefix enersave-web"
+  },
+  "dependencies": {
+    "next": "^14.2.23",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

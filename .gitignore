@@ -11,6 +11,7 @@ Thumbs.db
 
 # Node / Next.js
 .next/
+node_modules/
 enersave-web/node_modules/
 enersave-web/.next/
 enersave-web/.data/
