@@ -5,14 +5,14 @@ export const dashboardDescription = "Live building energy data, room controls, r
 export const howItWorksSections = [
   {
     title: "What this dashboard is",
-    body: "Enersave helps building staff see electricity use, adjust room equipment, and review patterns from one place."
+    body: "Enersave is a working energy operations interface for viewing demand, changing room equipment states, and reviewing reports in one place."
   },
   {
     title: "What is live right now",
-    body: "The dashboard shows a working web interface with live-updating readings, room controls, reports, and analytics."
+    body: "The web app, controls, alerts, reports, and persistence are live. Room activity currently comes from a preloaded room model with predefined devices, occupancy labels, and kW values rather than a live building feed."
   },
   {
     title: "Why some parts look local",
-    body: "The site hardware connection is not in place yet, so the app uses local data and built-in controls until that connection is added."
+    body: "This system is not connected to live IoT hardware yet. Telemetry is generated from the saved software state, and the AI view is based on a pre-existing smart meter dataset and a trained clustering model rather than direct sensor streaming."
   }
 ] as const;

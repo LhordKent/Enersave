@@ -22,3 +22,6 @@ enersave-ai/tests/__pycache__/
 
 # Logs
 *.log
+
+# Local planning docs
+docs/
