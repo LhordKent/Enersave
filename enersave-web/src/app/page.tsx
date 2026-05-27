@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Activity, Gauge, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { User, onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { AlertsPage, ReportsPage, SettingsPage } from "@/components/AppPages";
 import { ClusterPlot } from "@/components/ClusterPlot";
@@ -15,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarNav, type SectionKey } from "@/components/SidebarNav";
 import { BuildingStatusBanner, HighDemandAlertBanner, getBuildingStatus } from "@/components/StatusBanners";
+import { LoginPage } from "@/components/LoginPage";
+import { getFirebaseAuth, getFirestoreDb } from "@/lib/firebase";
 import { dashboardDescription, howItWorksSections, pageTitle } from "@/lib/productCopy";
 import type { BmsState } from "@/lib/simState";
 import { cn } from "@/lib/utils";
@@ -131,7 +135,7 @@ function MetricCard({
   );
 }
 
-export default function Home() {
+function Dashboard({ user }: { user: User }) {
   const [telemetry, setTelemetry] = useState<TelemetryPayload | null>(null);
   const [liveData, setLiveData] = useState<LivePoint[]>([]);
   const [bmsState, setBmsState] = useState<BmsState | null>(null);
@@ -140,6 +144,12 @@ export default function Home() {
   const [section, setSection] = useState<SectionKey>("telemetry");
   const [dismissedHighDemand, setDismissedHighDemand] = useState(false);
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
+
+  async function onSignOut() {
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+    await signOut(auth);
+  }
 
   async function fetchTelemetry() {
     const response = await fetch("/api/energy/live", { cache: "no-store" });
@@ -317,6 +327,9 @@ export default function Home() {
                 <p className="mt-2 max-w-3xl text-sm text-muted-foreground sm:text-base">{dashboardDescription}</p>
               </div>
               <div className="flex min-w-56 flex-col gap-3">
+                <Button variant="ghost" className="w-full justify-center" onClick={() => void onSignOut()}>
+                  Sign out {user.email ? `(${user.email})` : ""}
+                </Button>
                 <Button variant="outline" className="w-full justify-center" onClick={() => setHowItWorksOpen(true)}>
                   How this works
                 </Button>
@@ -457,4 +470,52 @@ export default function Home() {
       </InfoDialog>
     </main>
   );
+}
+
+export default function Home() {
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+    if (!auth) {
+      setAuthReady(true);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+      setUser(nextUser);
+      setAuthReady(true);
+
+      if (!nextUser) {
+        return;
+      }
+
+      const db = getFirestoreDb();
+      if (!db) {
+        return;
+      }
+
+      void setDoc(
+        doc(db, "users", nextUser.uid),
+        {
+          email: nextUser.email ?? null,
+          lastLoginAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (!authReady) {
+    return <main className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading...</main>;
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  return <Dashboard user={user} />;
 }
